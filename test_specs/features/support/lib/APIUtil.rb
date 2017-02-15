@@ -1,173 +1,99 @@
 class APIUtil
+include APICommunity
 
   URI_BASE = 'https://qabuilds.spigit.com'
   GRANT_TYPE = 'password'
   # CODE = '8atTBIOh'
+
+  # These elements can be set from UI web engage
   CLIENT_ID = 'MB4N5QCM1mC5'
   CLIENT_SECRET = 'MmS2cuWjEnNgHcYSWxkDES5xznDsDQeLqDBIUyOFqZEGz4KT'
 
-  @@username = 'admin'
-  @@password = 'farmtotable123'
+  @username = ''
+  @password = ''
   @@token = ''
 
-  def _setToken(token_value)
-    @@token = token_value
+  # authentication_required : 'true' if new credentials of a specific role will be set, 'false' if current credentials will be used.
+  # role_user               : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
+  def initialize(authentication_required, role_user)
+    if authentication_required
+      case role_user
+        when 'superadmin' then
+          @username = ENV['API_USERNAME_SUPERADMIN']
+          @password = ENV['API_PASSWORD_SUPERADMIN']
+
+        when 'admin' then
+          @username = ENV['API_USERNAME_ADMIN']
+          @password = ENV['API_PASSWORD_ADMIN']
+
+        when 'member' then
+          @username = ENV['API_USERNAME_MEMBER']
+          @password = ENV['API_PASSWORD_MEMBER']
+
+        else
+          fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
+      end
+
+    end
+
+    # Retrieve token
+    if @@token == ''
+      createToken
+    else
+      puts 'TOKEN WAS NOT CREATED'
+    end
   end
 
-  def _getToken
-    @@token
-  end
-
-  def _getUsername()
-    @@username
-  end
-
-  def _setUsername(new_username)
-    @@username = new_username
-  end
-
-  def _getPassword()
-    @@password
-  end
-
-  def _setPassword(new_password)
-    @@password = new_password
-  end
-
-  def getTokens
+  def createToken
+    puts 'CREATING TOKEN...'
     body = Hash.new
 
     body['grant_type'] = GRANT_TYPE
     body['client_id'] = CLIENT_ID
     body['client_secret'] = CLIENT_SECRET
-    body['@@username'] = _getUsername
-    body['@@password'] = _getPassword
+    body['username'] = @username
+    body['password'] = @password
 
     begin
-      response = RestClient.post("#{URI_BASE}/oauth/token",body)
+      response = RestClient.post("https://qabuilds.spigit.com/oauth/token",body)
     rescue RestClient::Unauthorized, RestClient::Forbidden => err
       return err.response
     else
-      _setToken(JSON.parse(response)['access_token'])
-      return response
-    end
-
-  end
-
-  # TODO If executeGET is going to be a generic method then there should be another method to prepare the url according to what we want to get
-  # def executeGet(url, params, authentication_required, username, password)
-  #
-  #   # Get access token
-  #   if authentication_required
-  #     _setUsername username
-  #     _setPassword password
-  #     response = getTokens
-  #     unless response.code == 200
-  #       fail(ArgumentError.new("An error has occurred.\n#{JSON.parse(response)['dev_message']}. #{JSON.parse(response)['message']}"))
-  #     end
-  #   end
-  #
-  #   headers = Hash.new
-  #
-  #   headers['Authorization'] = "Bearer #{_getToken}"
-  #
-  #   # if no params were sent then no need to add an empty hash
-  #   unless params.nil? or params == ''
-  #     parameters = Hash.new
-  #     params.split(',').each do |pair|
-  #       pairs = pair.split(':')
-  #       parameters = {pairs[0] => pairs[1]}
-  #     end
-  #     headers['params'] = parameters
-  #   end
-  #
-  # TODO Here is where it should manage the url in order to understand what we want to get
-  #   begin
-  #     response = RestClient.get(url, headers)
-  #   rescue RestClient::Unauthorized, RestClient::Forbidden => err
-  #     return err.response
-  #   else
-  #     return response
-  #   end
-  # end
-
-  def getCommunitiesWithParameters(params)
-    headers = Hash.new
-
-    headers['Authorization'] = "Bearer #{@@token}"
-
-    # if no params were sent then no need to add an empty hash
-    unless params.nil? or params == ''
-      parameters = Hash.new
-      params.split(',').each do |pair|
-        pairs = pair.split(':')
-        parameters = {pairs[0] => pairs[1]}
-      end
-      headers['params'] = parameters
-    end
-
-    begin
-      response = RestClient.get("#{URI_BASE}/api/v1/communities", headers)
-    rescue RestClient::Unauthorized, RestClient::Forbidden => err
-      return err.response
-    else
+      @@token = JSON.parse(response)['access_token']
       return response
     end
   end
 
-
-
-
-
-
-
-  def initialize
-    @restAPIResponse = nil
+  # Method to retrieve the current token
+  def getToken
+    @@token
   end
 
-  def getResponse
-    @restAPIResponse
+  # Method to retrieve the URI base
+  def getURIBase
+    URI_BASE
   end
+  
+  # Method to Parse a string given and parse it to Hash
+  # string_to_parse : String to be parsed, format should be:
+  # <key1>:<value1>,<key2>:<value2>,<...
+  # e.g. foo1:bar1,foo2:bar2
+  def __parseStringToHash__(string_to_parse)
+    parameters = Hash.new
+    string_to_parse.split(',').each do |pair|
+      fail(ArgumentError.new("'#{string_to_parse}' string format is not correct\n"+
+                              "The expected format should be:\n"+
+                              "<key1>:<value1>,<key2>:<value2>,<...\n"+
+                              "e.g. foo1:bar1,foo2:bar2\n")) if pair == '' or pair.nil?
+      pairs = pair.split(':')
 
-  def setResponse(response)
-    @restAPIResponse = response
-  end
+      fail(ArgumentError.new("'#{string_to_parse}' string format is not correct\n"+
+                              "The expected format should be:\n"+
+                              "<key1>:<value1>,<key2>:<value2>,<...\n"+
+                              "e.g. foo1:bar1,foo2:bar2\n")) if pairs[0].nil? or pairs[1].nil? or pairs[0] == '' or pairs[1] == ''
 
-  def getResponseParamFromHeader(param)
-    getResponse.headers[param]
-  end
-
-  def executeGETCommand(url, header)
-    if header == ''
-      RestClient.get url
-    else
-      parameters = Hash.new
-      header.split(',').each do |pair|
-        pairs = pair.split(':')
-        parameters = {pairs[0] => pairs[1]}
-      end
-      setResponse RestClient.get url, parameters
+      parameters[pairs[0]] = pairs[1].include?('{') ? __parseStringToHash__(pairs[1]) : pairs[1]
     end
+    return parameters
   end
-
-  def executePOSTCommand(url, header, body)
-    if header == ''
-      RestClient.post url, body
-    else
-      headers = Hash.new
-      header.split(',').each do |pair|
-        pairs = pair.split(':')
-        headers = {pairs[0] => pairs[1]}
-      end
-      parameters = Hash.new
-      body.split(',').each do |pair|
-        pairs = pair.split(':')
-        parameters = {pairs[0] => pairs[1]}
-      end
-      @restAPIResponse = RestClient.post url, headers, parameters
-    end
-  end
-
-
-
 end
