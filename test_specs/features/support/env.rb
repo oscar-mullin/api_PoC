@@ -1,11 +1,16 @@
 require 'rubygems'
 require 'report_builder'
 require 'rest-client'
+require 'parallel_tests'
 
 $browser = ENV['BROWSER'] # IE, CH, FF
+api_username = ENV['API_USERNAME']
+api_password = ENV['API_PASSWORD']
 
-Before do |scenario|
+Before do
   puts "TC Start time: #{Time.now.strftime('%m/%d/%Y %H:%M%p')}"
+
+  @apiutil = APIUtil.new(true,'superadmin')
 end
 
 After do |scenario|
