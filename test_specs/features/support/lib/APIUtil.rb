@@ -1,5 +1,8 @@
 class APIUtil
 include APICommunity
+include APICategory
+include APIIdea
+include APIIdeaTemplate
 
   URI_BASE = 'https://qabuilds.spigit.com'
   GRANT_TYPE = 'password'
@@ -96,4 +99,5 @@ include APICommunity
     end
     return parameters
   end
+
 end

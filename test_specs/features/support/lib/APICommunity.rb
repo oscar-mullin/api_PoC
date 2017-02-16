@@ -34,6 +34,7 @@ module APICommunity
     rescue RestClient::Unauthorized
       createToken
       response = RestClient.get(url_base, headers)
+      return response
     rescue RestClient::Forbidden => err
       return err.response
     else
@@ -41,28 +42,15 @@ module APICommunity
     end
   end
 
-  # TODO: under construction
-  # Method to execute GET call through API framework and retrieve details of an specific community.
-  # sitename  : Community title to retrieve its details
-  # header    : Parameters that will be added to URI's headers
-  # params    : Parameters that will be added to URI's body
-  def getCommunity(sitename)
-    url_base = getURIBase + '/api/v1/communities'
-    community_id = ''
-    # I get the community ID
-    community_found = false
-    until community_found
-      communities_response = getCommunities('', 'limit:100')
-      response_content = JSON.parse(communities_response.body)['content']
-      response_content.each do |content_element|
-        if content_element['title'].include? ("#{sitename}")
-          community_found = true
-          community_id = content_element['id']
-          break
-        end
-      end
-      list_end_reached = true if community_found
-    end
+  # Method to execute GET call through API framework and retrieve details of a specific community.
+  # site_name  : Community title to retrieve its details
+  def getCommunity(site_name)
+
+    # Get the community ID
+    community_id = getCommunityID(site_name)
+    fail(ArgumentError.new("'#{site_name}' site was not found")) if community_id == ''
+
+    url_base = "#{getURIBase}/api/v1/communities/#{community_id}"
 
     if getToken == ''
       # Get access token
@@ -77,26 +65,49 @@ module APICommunity
     headers = Hash.new
     headers['Authorization'] = "Bearer #{getToken}"
 
-    # if no other headers were sent then no need to add an empty hash
-    unless header.nil? or header == ''
-      headers = headers.merge(__parseStringToHash__(header))
-    end
-
-    # if no params were sent then no need to add an empty hash
-    unless params.nil? or params == ''
-      headers['params'] = __parseStringToHash__(params)
-    end
-
     begin
       response = RestClient.get(url_base, headers)
     rescue RestClient::Unauthorized
       createToken
       response = RestClient.get(url_base, headers)
+      return response
     rescue RestClient::Forbidden => err
       return err.response
     else
       return response
     end
+  end
+
+  # Method to retrieve ID of a specific Community
+  # site  : Title of the community to retrieve its ID
+  def getCommunityID(site_name)
+    community_id = ''
+    community_found = false
+    no_next_link = false
+
+    offset = 0
+
+    until community_found or no_next_link
+      communities_response = getCommunities('', "offset:#{offset.to_s},limit:100")
+      JSON.parse(communities_response)['links'].each do |navigation_link|
+        if navigation_link['rel'] == 'next'
+          no_next_link = false
+          break
+        else
+          no_next_link = true
+        end
+      end
+      response_content = JSON.parse(communities_response.body)['content']
+      response_content.each do |content_element|
+        if content_element['title'].include? ("#{site_name}")
+          community_found = true
+          community_id = content_element['id']
+          break
+        end
+      end
+      offset += 100
+    end
+    return community_id
   end
 
 end
