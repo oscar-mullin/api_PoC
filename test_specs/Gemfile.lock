@@ -52,4 +52,4 @@ DEPENDENCIES
   rest-client (~> 2.0.0)
 
 BUNDLED WITH
-   1.14.3
+   1.14.4

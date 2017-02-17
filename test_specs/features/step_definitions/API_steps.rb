@@ -1,7 +1,14 @@
+require_relative '../support/API_Objects/community_api'
 Given(/^I get all the communities with "([^"]*)" parameters$/) do |params|
   # Get response for the Rest API Call and print it raw
-  response = @apiutil.getCommunities('', params)
-  puts "RAW GET CALL RESPONSE: #{response}\n\n"
+  #response = @apiutil.getCommunities('', params)
+  communityAPI = CommunityAPI.new(true,'superadmin')
+
+  #Example of how to call the get community
+  getCommunityResponse = communityAPI.getCommunity "QAArComm1"
+
+  #Example of how to get all communities
+  response = communityAPI.getAllCommunities(params)
 
   # Verify that Code Response expected is 200
   unless response.code == 200

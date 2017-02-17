@@ -9,8 +9,6 @@ api_password = ENV['API_PASSWORD']
 
 Before do
   puts "TC Start time: #{Time.now.strftime('%m/%d/%Y %H:%M%p')}"
-
-  @apiutil = APIUtil.new(true,'superadmin')
 end
 
 After do |scenario|
