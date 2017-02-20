@@ -1,7 +1,6 @@
 class APIUtil
-#include APICommunity
 
-  URI_BASE = 'https://qabuilds.spigit.com'
+  URI_BASE = ENV['URI_BASE']
   GRANT_TYPE = 'password'
   # CODE = '8atTBIOh'
 
@@ -11,7 +10,7 @@ class APIUtil
 
   @username = ''
   @password = ''
-@authenticationRequired = false
+  @authenticationRequired = false
   @@token = ''
 
   # authentication_required : 'true' if new credentials of a specific role will be set, 'false' if current credentials will be used.
@@ -46,31 +45,51 @@ class APIUtil
     end
   end
 
-def makeGetCall(url, header, params)
-  headers = Hash.new
-  if(@authenticationRequired)
+  def makeGetCall(url, header, params)
+    headers = Hash.new
     headers['Authorization'] = "Bearer #{getToken}"
-  end
-  unless header.nil? or header == ''
-    headers = headers.merge(__parseStringToHash__(header))
+
+    unless header.nil? or header == ''
+      headers = headers.merge(__parseStringToHash__(header))
+    end
+
+    # if no params were sent then no need to add an empty hash
+    unless params.nil? or params == ''
+      headers['params'] = __parseStringToHash__(params)
+    end
+
+    begin
+      response = RestClient.get(url, headers)
+    rescue RestClient::Unauthorized
+      createToken
+      response = RestClient.get(url, headers)
+    rescue RestClient::Forbidden => err
+      return err.response
+    else
+      return response
+    end
   end
 
-  # if no params were sent then no need to add an empty hash
-  unless params.nil? or params == ''
-    headers['params'] = __parseStringToHash__(params)
-  end
+  def makePostCall(url, header, params)
+    headers = Hash.new
+    headers['Authorization'] = "Bearer #{getToken}"
 
-  begin
-    response = RestClient.get(url, headers)
-  rescue RestClient::Unauthorized
-    createToken
-    response = RestClient.get(url, headers)
-  rescue RestClient::Forbidden => err
-    return err.response
-  else
-    return response
+    unless header.nil? or header == ''
+      headers = headers.merge(header)
+    end
+
+    begin
+      response = RestClient.post(url, params.to_json, headers)
+    rescue RestClient::Unauthorized
+      createToken
+      response = RestClient.post(url_base, params.to_json, headers)
+      return response
+    rescue RestClient::Forbidden,RestClient::BadRequest => err
+      return err.response
+    else
+      return response
+    end
   end
-end
 
   def createToken
     puts 'CREATING TOKEN...'
@@ -124,4 +143,5 @@ end
     end
     return parameters
   end
+
 end

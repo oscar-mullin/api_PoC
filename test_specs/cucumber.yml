@@ -18,6 +18,6 @@ parallel:
   API_USERNAME_MEMBER=chris1
   API_PASSWORD_MEMBER=Spigit.123
 
-  HUB_URL=http://192.168.121.33:4444/wd/hub
+  URI_BASE=https://qabuilds.spigit.com
 
   --format json --out output/API_Report_(<%= ENV['TEST_ENV_NUMBER'] %>).json
