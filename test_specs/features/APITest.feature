@@ -4,16 +4,9 @@ Feature: APITest
   @API
   Scenario Outline: API - List Communities
     Given I get all the communities with "<params>" parameters
-    Given I get all the communities with "<params>" parameters
-    Given I get all the communities with "<params>" parameters
-    Given I get all the communities with "<params>" parameters
-    Given I get all the communities with "<params>" parameters
+
   Examples:
     | params           |
-    | offset:0,limit:5 |
-    | offset:0,limit:5 |
-    | offset:0,limit:5 |
-    | offset:0,limit:5 |
     | offset:0,limit:5 |
 
   @API

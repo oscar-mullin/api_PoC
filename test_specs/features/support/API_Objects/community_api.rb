@@ -15,7 +15,6 @@ class CommunityAPI
       communities_response = getAllCommunities('limit:100')
       response_content = JSON.parse(communities_response.body)['content']
       community = response_content.select{|h1| h1['title']==siteName}.first
-    puts "HERE: #{community}"
   end
 
 

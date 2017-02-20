@@ -1,8 +1,4 @@
 class APIUtil
-include APICommunity
-include APICategory
-include APIIdea
-include APIIdeaTemplate
 
   URI_BASE = 'https://qabuilds.spigit.com'
   GRANT_TYPE = 'password'
@@ -14,12 +10,14 @@ include APIIdeaTemplate
 
   @username = ''
   @password = ''
+@authenticationRequired = false
   @@token = ''
 
   # authentication_required : 'true' if new credentials of a specific role will be set, 'false' if current credentials will be used.
   # role_user               : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
   def initialize(authentication_required, role_user)
     if authentication_required
+      @authenticationRequired = true
       case role_user
         when 'superadmin' then
           @username = ENV['API_USERNAME_SUPERADMIN']
@@ -46,6 +44,32 @@ include APIIdeaTemplate
       puts 'TOKEN WAS NOT CREATED'
     end
   end
+
+def makeGetCall(url, header, params)
+  headers = Hash.new
+  if(@authenticationRequired)
+    headers['Authorization'] = "Bearer #{getToken}"
+  end
+  unless header.nil? or header == ''
+    headers = headers.merge(__parseStringToHash__(header))
+  end
+
+  # if no params were sent then no need to add an empty hash
+  unless params.nil? or params == ''
+    headers['params'] = __parseStringToHash__(params)
+  end
+
+  begin
+    response = RestClient.get(url, headers)
+  rescue RestClient::Unauthorized
+    createToken
+    response = RestClient.get(url, headers)
+  rescue RestClient::Forbidden => err
+    return err.response
+  else
+    return response
+  end
+end
 
   def createToken
     puts 'CREATING TOKEN...'
