@@ -4,7 +4,6 @@ Feature: APITest
   @API
   Scenario Outline: API - List Communities
     Given I get all the communities with "<params>" parameters
-
   Examples:
     | params           |
     | offset:0,limit:5 |
@@ -48,4 +47,4 @@ Feature: APITest
     Given I post an idea on "<site>" community with Title: "<title>", Category: "<category>", Tags: "<tags>" and "<params>" parameters
   Examples:
     | site      | title                   | category | tags | params                   |
-    | QAArComm1 | Idea posted from API #1 | Science  |      | Content:Idea Description |
+    | QAArComm1 | Idea posted from API #5 | Science  |      | Content:Idea Description |

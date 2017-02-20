@@ -1,9 +1,11 @@
 require_relative '../support/API_Objects/community_api'
 Given(/^I get all the communities with "([^"]*)" parameters$/) do |params|
   # Get response for the Rest API Call and print it raw
-  #response = @apiutil.getCommunities('', params)
+  # response = @apiutil.getCommunities('', params)
+
   communityAPI = CommunityAPI.new(true,'superadmin')
   response = communityAPI.getAllCommunities(params)
+  puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
   unless response.code == 200
@@ -22,8 +24,10 @@ end
 
 Given(/^I post an idea on "([^"]*)" community with Title: "([^"]*)", Category: "([^"]*)", Tags: "([^"]*)" and "([^"]*)" parameters$/) do |site, idea_title, category_title, tags, params|
 # Get response for the Rest API Call and print it raw
-  response = @apiutil.postIdea(site, idea_title, category_title, tags, '', params)
-  puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
+#   response = @apiutil.postIdea(site, idea_title, category_title, tags, '', params)
+  ideaAPI = IdeaAPI.new(true,'superadmin')
+  response = ideaAPI.postIdea(site, idea_title, category_title, tags, params)
+  puts "\n\nRAW POST CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
   unless response.code == 201
@@ -33,16 +37,17 @@ Given(/^I post an idea on "([^"]*)" community with Title: "([^"]*)", Category: "
   end
 
   # Print idea's title from body content
-  response_content = JSON.parse(response.body)['content']
-  puts "RAW GET CALL RESPONSE CONTENT: #{response_content}\n"
-  response_content.each do |content_element|
-    puts "IDEA TITLE LISTED: #{content_element['title']}\n"
-  end
+  response_content = JSON.parse(response)
+  puts "IDEA TITLE LISTED: #{response_content['title']}\n"
 end
 
 Given(/^I get the details of "([^"]*)" community$/) do |site_name|
+
+  communityAPI = CommunityAPI.new(true,'superadmin')
+  response = communityAPI.getCommunity site_name
+
   # Get response for the Rest API Call and print it raw
-  response = @apiutil.getCommunity(site_name)
+  # response = @apiutil.getCommunity(site_name)
   puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
@@ -59,7 +64,9 @@ end
 
 Given(/^I get the categories of "([^"]*)" community with "([^"]*)" parameters$/) do |site_name, params|
   # Get response for the Rest API Call and print it raw
-  response = @apiutil.getCategories(site_name,'',params)
+  # response = @apiutil.getCategories(site_name,'',params)
+  categoryAPI = CategoryAPI.new(true, 'superadmin')
+  response = categoryAPI.getAllCategories(site_name,params)
   puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
@@ -79,7 +86,9 @@ end
 
 Given(/^I get the ideas of "([^"]*)" community with "([^"]*)" parameters$/) do |site_name, params|
   # Get response for the Rest API Call and print it raw
-  response = @apiutil.getIdeas(site_name,'',params)
+  # response = @apiutil.getIdeas(site_name,'',params)
+  ideaAPI = IdeaAPI.new(true, 'superadmin')
+  response = ideaAPI.getAllIdeas(site_name,params)
   puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
@@ -99,7 +108,9 @@ end
 
 Given(/^I get the details of "([^"]*)" idea on "([^"]*)" community$/) do |idea_title,site_name|
   # Get response for the Rest API Call and print it raw
-  response = @apiutil.getIdea(site_name,idea_title)
+  # response = @apiutil.getIdea(site_name,idea_title)
+  ideaAPI = IdeaAPI.new(true, 'superadmin')
+  response = ideaAPI.getIdea(site_name,idea_title)
   puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
@@ -116,7 +127,9 @@ end
 
 Given(/^I get the Idea Template of "([^"]*)" community$/) do |site_name|
   # Get response for the Rest API Call and print it raw
-  response = @apiutil.getIdeaTemplate(site_name)
+  # response = @apiutil.getIdeaTemplate(site_name)
+  ideaTemplateAPI = IdeaTemplateAPI.new(true, 'superadmin')
+  response = ideaTemplateAPI.getIdeaTemplate(site_name)
   puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
