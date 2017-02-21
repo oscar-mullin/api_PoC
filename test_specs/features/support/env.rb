@@ -2,9 +2,9 @@ require 'rubygems'
 require 'rest-client'
 require 'parallel_tests'
 
+$responseGet = nil
+$responsePost = nil
 $browser = ENV['BROWSER'] # IE, CH, FF
-api_username = ENV['API_USERNAME']
-api_password = ENV['API_PASSWORD']
 
 Dir::mkdir('output') if not File.directory?('output')
 

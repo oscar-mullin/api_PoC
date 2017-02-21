@@ -1,7 +1,7 @@
 class CommunityAPI
 
-  def initialize(authentication_required, role_user)
-    @apiUtil = APIUtil.new(authentication_required,role_user)
+  def initialize(role_user=nil)
+    @apiUtil = APIUtil.new(role_user)
   end
 
   def getAllCommunities(params)

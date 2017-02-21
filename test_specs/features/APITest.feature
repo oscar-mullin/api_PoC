@@ -3,7 +3,8 @@ Feature: APITest
   # API calls test executed over Engage API framework
   @API
   Scenario Outline: API - List Communities
-    Given I get all the communities with "<params>" parameters
+    Given I create a new token with "admin" role
+    Then I get all the communities with "<params>" parameters
   Examples:
     | params           |
     | offset:0,limit:5 |
@@ -17,7 +18,8 @@ Feature: APITest
 
   @API
   Scenario Outline: API - Get Categories from a specific Community
-    Given I get the categories of "<site>" community with "<params>" parameters
+    Given I create a new token with "member" role
+    Then I get the categories of "<site>" community with "<params>" parameters
   Examples:
     | site      | params           |
     | QAArComm1 | offset:0,limit:5 |
@@ -38,13 +40,15 @@ Feature: APITest
 
   @API
   Scenario Outline: API - Get Idea Template from a specific Community
-    Given I get the Idea Template of "<site>" community
+    Given I create a new token with "admin" role
+    Then I get the Idea Template of "<site>" community
   Examples:
     | site      |
     | QAArComm1 |
 
   Scenario Outline: API - Post an idea
-    Given I post an idea on "<site>" community with Title: "<title>", Category: "<category>", Tags: "<tags>" and "<params>" parameters
+    Given I create a new token with "member" role
+    Then I post an idea on "<site>" community with Title: "<title>", Category: "<category>", Tags: "<tags>" and "<params>" parameters
   Examples:
     | site      | title                   | category | tags | params                   |
     | QAArComm1 | Idea posted from API #5 | Science  |      | Content:Idea Description |
