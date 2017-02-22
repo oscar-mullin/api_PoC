@@ -11,3 +11,9 @@ Then(/^I get all the communities with offset (.*) and limit (.*) parameters$/) d
     communityAPI.getAllCommunities("")
   end
 end
+
+And(/^I verify List Communities Response structure is the expected$/) do
+  communities_api = CommunitiesAPI.new
+  response_expected_message = communities_api.verifyResponseContract($responseGet.body)
+  fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
+end
