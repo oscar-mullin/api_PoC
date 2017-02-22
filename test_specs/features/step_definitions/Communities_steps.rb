@@ -1,6 +1,6 @@
 require_relative '../support/API_Objects/community_api'
 Then(/^I get all the communities with offset (.*) and limit (.*) parameters$/) do |offset, limit|
-  communityAPI = CommunityAPI.new('admin')
+  communityAPI = CommunityAPI.new
   if offset != '' and limit != ''
     communityAPI.getAllCommunities("offset:#{offset},limit:#{limit}")
   elsif offset == '' and limit != ''
