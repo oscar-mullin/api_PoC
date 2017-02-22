@@ -16,26 +16,31 @@ class APIUtil
   # role_user : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
   def initialize(role_user='member')
     puts "Current role: '#{@@current_role}'\nNew role: '#{role_user}'"
-    @@current_role = role_user unless role_user.nil?
-    case @@current_role
-      when 'superadmin' then
-        @username = ENV['API_USERNAME_SUPERADMIN']
-        @password = ENV['API_PASSWORD_SUPERADMIN']
 
-      when 'admin' then
-        @username = ENV['API_USERNAME_ADMIN']
-        @password = ENV['API_PASSWORD_ADMIN']
+    if @@token == '' or (@@current_role != role_user and not(role_user.nil?))
+      @@current_role = role_user unless role_user.nil? or role_user == ''
+      case @@current_role
+        when 'superadmin' then
+          @username = ENV['API_USERNAME_SUPERADMIN']
+          @password = ENV['API_PASSWORD_SUPERADMIN']
 
-      when 'member' then
-        @username = ENV['API_USERNAME_MEMBER']
-        @password = ENV['API_PASSWORD_MEMBER']
+        when 'admin' then
+          @username = ENV['API_USERNAME_ADMIN']
+          @password = ENV['API_PASSWORD_ADMIN']
 
-      else
-        fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
-    end
+        when 'member' then
+          @username = ENV['API_USERNAME_MEMBER']
+          @password = ENV['API_PASSWORD_MEMBER']
 
-    # Retrieve token
-    if @@token == '' or (@@current_role == role_user and not role_user.nil?)
+        when 'none' then
+          @@token = '_'
+          return
+
+        else
+          fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
+      end
+
+      # Retrieve token
       createToken
     else
       puts "TOKEN WAS NOT CREATED, USING ROLE: '#{@@current_role}'"
@@ -59,8 +64,12 @@ class APIUtil
       $responseGet = RestClient.get(url, headers)
     rescue RestClient::Unauthorized
       createToken
-      $responseGet = RestClient.get(url, headers)
-      return $responseget
+      headers['Authorization'] = "Bearer #{getToken}"
+      begin
+        $responseGet = RestClient.get(url, headers)
+      rescue => err
+        $responseGet = err.response
+      end
     rescue RestClient::Forbidden => err
       return err.response
     else
