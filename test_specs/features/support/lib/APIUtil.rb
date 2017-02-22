@@ -1,7 +1,6 @@
 class APIUtil
-#include APICommunity
 
-  URI_BASE = 'https://qabuilds.spigit.com'
+  URI_BASE = ENV['URI_BASE']
   GRANT_TYPE = 'password'
   # CODE = '8atTBIOh'
 
@@ -11,69 +10,87 @@ class APIUtil
 
   @username = ''
   @password = ''
-@authenticationRequired = false
   @@token = ''
+  @@current_role = 'member'
 
-  # authentication_required : 'true' if new credentials of a specific role will be set, 'false' if current credentials will be used.
-  # role_user               : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
-  def initialize(authentication_required, role_user)
-    if authentication_required
-      @authenticationRequired = true
-      case role_user
-        when 'superadmin' then
-          @username = ENV['API_USERNAME_SUPERADMIN']
-          @password = ENV['API_PASSWORD_SUPERADMIN']
+  # role_user : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
+  def initialize(role_user='member')
+    puts "Current role: '#{@@current_role}'\nNew role: '#{role_user}'"
+    @@current_role = role_user unless role_user.nil?
+    case @@current_role
+      when 'superadmin' then
+        @username = ENV['API_USERNAME_SUPERADMIN']
+        @password = ENV['API_PASSWORD_SUPERADMIN']
 
-        when 'admin' then
-          @username = ENV['API_USERNAME_ADMIN']
-          @password = ENV['API_PASSWORD_ADMIN']
+      when 'admin' then
+        @username = ENV['API_USERNAME_ADMIN']
+        @password = ENV['API_PASSWORD_ADMIN']
 
-        when 'member' then
-          @username = ENV['API_USERNAME_MEMBER']
-          @password = ENV['API_PASSWORD_MEMBER']
+      when 'member' then
+        @username = ENV['API_USERNAME_MEMBER']
+        @password = ENV['API_PASSWORD_MEMBER']
 
-        else
-          fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
-      end
-
+      else
+        fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
     end
 
     # Retrieve token
-    if @@token == ''
+    if @@token == '' or (@@current_role == role_user and not role_user.nil?)
       createToken
     else
-      puts 'TOKEN WAS NOT CREATED'
+      puts "TOKEN WAS NOT CREATED, USING ROLE: '#{@@current_role}'"
     end
   end
 
-def makeGetCall(url, header, params)
-  headers = Hash.new
-  if(@authenticationRequired)
+  def makeGetCall(url, header, params)
+    headers = Hash.new
     headers['Authorization'] = "Bearer #{getToken}"
-  end
-  unless header.nil? or header == ''
-    headers = headers.merge(__parseStringToHash__(header))
+
+    unless header.nil? or header == ''
+      headers = headers.merge(__parseStringToHash__(header))
+    end
+
+    # if no params were sent then no need to add an empty hash
+    unless params.nil? or params == ''
+      headers['params'] = __parseStringToHash__(params)
+    end
+
+    begin
+      $responseGet = RestClient.get(url, headers)
+    rescue RestClient::Unauthorized
+      createToken
+      $responseGet = RestClient.get(url, headers)
+      return $responseget
+    rescue RestClient::Forbidden => err
+      return err.response
+    else
+      return $responseGet
+    end
   end
 
-  # if no params were sent then no need to add an empty hash
-  unless params.nil? or params == ''
-    headers['params'] = __parseStringToHash__(params)
-  end
+  def makePostCall(url, header, params)
+    headers = Hash.new
+    headers['Authorization'] = "Bearer #{getToken}"
 
-  begin
-    response = RestClient.get(url, headers)
-  rescue RestClient::Unauthorized
-    createToken
-    response = RestClient.get(url, headers)
-  rescue RestClient::Forbidden => err
-    return err.response
-  else
-    return response
+    unless header.nil? or header == ''
+      headers = headers.merge(header)
+    end
+
+    begin
+      $responsePost = RestClient.post(url, params.to_json, headers)
+    rescue RestClient::Unauthorized
+      createToken
+      $responsePost = RestClient.post(url, params.to_json, headers)
+      return $responsePost
+    rescue RestClient::Forbidden,RestClient::BadRequest => err
+      return err.response
+    else
+      return $responsePost
+    end
   end
-end
 
   def createToken
-    puts 'CREATING TOKEN...'
+    puts "CREATING TOKEN WITH ROLE: '#{@@current_role}'..."
     body = Hash.new
 
     body['grant_type'] = GRANT_TYPE
@@ -83,7 +100,7 @@ end
     body['password'] = @password
 
     begin
-      response = RestClient.post("https://qabuilds.spigit.com/oauth/token",body)
+      response = RestClient.post('https://qabuilds.spigit.com/oauth/token',body)
     rescue RestClient::Unauthorized, RestClient::Forbidden => err
       return err.response
     else
@@ -124,4 +141,5 @@ end
     end
     return parameters
   end
+
 end
