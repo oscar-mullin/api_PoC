@@ -15,12 +15,11 @@ Feature: APITest
   Scenario Outline: API - Get specific Community
     Given I create a new token with "<role>" role
     When I get the details of "<site>" community
-    Then I verify the code response-->code
-    And I verify that JSON response has expected contract-->contract
-    And I verify that community title is "XXX" title--->content
+    Then I verify Get response is <response_code>
+    And I verify Community Response structure is the expected
   Examples:
-    | site      | role   |
-    | QAArComm1 | member |
+    | site      | role   | response_code |
+    | QAArComm1 | member | 200           |
 
   @API
   Scenario Outline: API - Get Categories from a specific Community
