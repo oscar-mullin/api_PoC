@@ -17,3 +17,9 @@ And(/^I verify List Communities Response structure is the expected$/) do
   response_expected_message = communities_api.verifyResponseContract($responseGet.body)
   fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
 end
+
+And(/^I verify Community Response structure is the expected$/) do
+  community_api = CommunityAPI.new
+  response_expected_message = community_api.verifyResponseContract($responseGet.body)
+  fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
+end

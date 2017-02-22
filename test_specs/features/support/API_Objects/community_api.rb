@@ -1,41 +1,41 @@
 class CommunityAPI
+  @response_body = nil
 
   def initialize(role_user=nil)
     @apiUtil = APIUtil.new(role_user)
+    @response_body = Array['links', 'id', 'title', 'type', 'visible', 'description', 'site_type']
   end
 
-  def getAllCommunities(params)
-    url_base = @apiUtil.getURIBase + '/api/v1/communities'
-    response = @apiUtil.makeGetCall(url_base, nil, params)
-    return response
-  end
-
-  def getCommunity(site_name)
-    community_id = getCommunityID(site_name)
+  def getCommunity(community_id)
     url_base = @apiUtil.getURIBase + "/api/v1/communities/#{community_id}"
     response = @apiUtil.makeGetCall(url_base, nil, nil)
     return response
   end
 
-  # Method to retrieve ID of a specific Community
-  # site_name : Title of the community to retrieve its ID
-  def getCommunityID(site_name)
-    community_id = ''
-    community_found = false
-    no_next_link = false
-    offset = 0
-
-    until community_found or no_next_link
-      communities_response = getAllCommunities("offset:#{offset},limit:100")
-      response_content = JSON.parse(communities_response.body)['content']
-      community = response_content.select{|h1| h1['title'] == site_name}.first
-      community_found = !(community.nil?)
-      community_id = community['id'] if community_found
-      no_next_link = !((JSON.parse(communities_response.body)['links'].select{|h1| h1['rel'] == 'next'}).nil?)
-      offset += 100 unless no_next_link
+  def verifyResponseContract(response_contract)
+    final_message = ''
+    response_content = JSON.parse(response_contract)
+    if response_content['site_type'] == 'REGULAR'
+      @response_body.push('status')
+    elsif response_content['site_type'] == 'CHALLENGE'
+      @response_body.push('challenge_status')
+      @response_body.push('start_date')
+      @response_body.push('end_date')
+      @response_body.push('logo')
+      @response_body.push('phases')
     end
 
-    return community_id
+    if response_content.size == @response_body.size
+      response_content.each do |key, _|
+        unless @response_body.include?(key)
+          final_message = "Element: #{key} was not expected, expected keys are: #{@response_body}"
+          break
+        end
+      end
+    else
+      final_message = "Elements found: #{response_content.keys}\nElements expected: #{@response_body}"
+    end
+    return final_message
   end
 
 end
