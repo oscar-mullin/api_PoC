@@ -11,12 +11,13 @@ Given(/^I post an idea on "([^"]*)" community with Title: "([^"]*)", Category: "
   community_id = communityAPI.getCommunityID(site_name)
 
   # Get Category ID
-  categoryAPI = CategoryAPI.new
-  category_id = categoryAPI.getCategoryID(community_id, category_title)
+  categoriesAPI = CategoriesApi.new
+  category_id = categoriesAPI.getCategoryID(community_id, category_title)
 
   # Get response for the Rest API Call and print it raw
   ideaAPI = IdeaAPI.new
-  response = ideaAPI.postIdea(community_id, idea_title, category_id, tags, params)
+  #TODO - Fix me when Post Idea has been defined
+  #response = ideaAPI.postIdea(community_id, idea_title, category_id, tags, params)
   puts "\n\nRAW POST CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
@@ -45,8 +46,8 @@ Given(/^I get the categories of "([^"]*)" community with "([^"]*)" parameters$/)
   community_id = communityAPI.getCommunityID(site_name)
 
   # Get response for the Rest API Call and print it raw
-  categoryAPI = CategoryAPI.new
-  response = categoryAPI.getAllCategories(community_id,params)
+  categoriesAPI = CategoriesApi.new
+  response = categoriesAPI.getAllCategories(community_id,params)
   puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
@@ -70,8 +71,8 @@ Given(/^I get the ideas of "([^"]*)" community with "([^"]*)" parameters$/) do |
   community_id = communityAPI.getCommunityID(site_name)
 
   # Get response for the Rest API Call and print it raw
-  ideaAPI = IdeaAPI.new
-  response = ideaAPI.getAllIdeas(community_id,params)
+  ideasAPI = IdeasAPI.new
+  response = ideasAPI.getAllIdeas(community_id,params)
   puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200
@@ -95,8 +96,10 @@ Given(/^I get the details of "([^"]*)" idea on "([^"]*)" community$/) do |idea_t
   community_id = communityAPI.getCommunityID(site_name)
 
   # Get response for the Rest API Call and print it raw
+  ideasAPI = IdeasAPI.new
   ideaAPI = IdeaAPI.new
-  response = ideaAPI.getIdea(community_id,idea_title)
+  idea_id = ideasAPI.getIdeaID(community_id,idea_title)
+  response = ideaAPI.getIdea(idea_id )
   puts "\n\nRAW GET CALL RESPONSE: #{response}\n\n"
 
   # Verify that Code Response expected is 200

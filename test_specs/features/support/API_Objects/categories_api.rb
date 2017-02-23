@@ -1,4 +1,5 @@
-class CategoryAPI
+class CategoriesApi
+  RESPONSE_BODY_STRUCTURE = Array['total_count', 'links', 'content']
 
   def initialize(role_user=nil)
     @apiUtil = APIUtil.new(role_user)
@@ -34,6 +35,24 @@ class CategoryAPI
     end
 
     return category_id
+  end
+
+  # Method to verify the contract of a GET call
+  # response_contract : Response contract that will be compared with the expected contract for Categories API
+  def verifyResponseContract(response_contract)
+    final_message = ''
+    response_content = JSON.parse(response_contract)
+    if response_content.size == RESPONSE_BODY_STRUCTURE.size
+      response_content.each do |key, _|
+        unless RESPONSE_BODY_STRUCTURE.include?(key)
+          final_message = "Element: #{key} was not expected, expected keys are: #{RESPONSE_BODY_STRUCTURE}"
+          break
+        end
+      end
+    else
+      final_message = "Elements found: #{response_content.keys}\nElements expected: #{RESPONSE_BODY_STRUCTURE}"
+    end
+    return final_message
   end
 
 end
