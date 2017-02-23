@@ -32,6 +32,8 @@ class CommunitiesAPI
     return response
   end
 
+  # Method to verify the contract of a GET call
+  # response_contract : Response contract that will be compared with the expected contract for Communities API
   def verifyResponseContract(response_contract)
     final_message = ''
     response_content = JSON.parse(response_contract)
