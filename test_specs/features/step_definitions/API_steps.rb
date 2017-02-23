@@ -1,8 +1,8 @@
 require_relative '../support/API_Objects/community_api'
 Given(/^I get all the communities with "([^"]*)" parameters$/) do |params|
   # Get response for the Rest API Call and print it raw
-  communitiesAPI = CommunitiesAPI.new
-  communitiesAPI.getAllCommunities(params)
+  communityAPI = CommunityAPI.new
+  communityAPI.getAllCommunities(params)
 end
 
 Given(/^I post an idea on "([^"]*)" community with Title: "([^"]*)", Category: "([^"]*)", Tags: "([^"]*)" and "([^"]*)" parameters$/) do |site_name, idea_title, category_title, tags, params|
@@ -34,9 +34,8 @@ end
 
 Given(/^I get the details of "([^"]*)" community$/) do |site_name|
   # Get Community ID
-  communitiesAPI = CommunitiesAPI.new
-  community_id = communitiesAPI.getCommunityID(site_name)
   communityAPI = CommunityAPI.new
+  community_id = communityAPI.getCommunityID(site_name)
   communityAPI.getCommunity community_id
 end
 
