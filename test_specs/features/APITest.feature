@@ -3,7 +3,7 @@ Feature: APITest
   # API calls test executed over Engage API framework
   @API
   Scenario Outline: API - List Communities
-    Given I create a new token with "member" role
+    Given I create a new token with "superadmin" role
     When I get all the communities with "<params>" parameters
     Then I verify Get response is <response_code>
     And I verify List Communities Response structure is the expected
@@ -18,8 +18,8 @@ Feature: APITest
     Then I verify Get response is <response_code>
     And I verify Community Response structure is the expected
   Examples:
-    | site      | role   | response_code |
-    | QAArComm1 | member | 200           |
+    | site      | role       | response_code |
+    | QAArComm1 | superadmin | 200           |
 
   @API
   Scenario Outline: API - Get Categories from a specific Community
@@ -39,7 +39,8 @@ Feature: APITest
 
   @API
   Scenario Outline: API - Get specific Idea
-    Given I post an idea on "<string>" community with Title: "<string>", Category: "<string>", Tags: "<string>" and "<string>" parameters
+    Given I create a new token with "<role>" role
+    When I post an idea on "<string>" community with Title: "<string>", Category: "<string>", Tags: "<string>" and "<string>" parameters
     Then I get the details of recently posted idea
   Examples:
     | site      | idea_title        |
@@ -57,12 +58,11 @@ Feature: APITest
     | site      |
     | QAArComm1 |
 
-#  Scenario Outline: API - Post an idea
-#    Given I create a new token with "member" role
-##    When I get "<site>" community ID
-##    And I get "<category>" category ID
-#    When I post an idea on "<site>" community with Title: "<title>", Category: "<category>", Tags: "<tags>" and "<params>" parameters
-##    Then
-#  Examples:
-#    | site      | title                   | category | tags | params                   |
-#    | QAArComm1 | Idea posted from API #5 | Science  |      | Content:Idea Description |
+  Scenario Outline: API - Post an idea
+    Given I create a new token with "member" role
+    When I post an idea on "<site>" community with Title: "<title>", Category: "<category>", Tags: "<tags>" and "<params>" parameters
+    Then I verify Get response is <response_code>
+    And I verify that Post Idea Response structure is the expected
+  Examples:
+    | site      | title                   | category | tags | params                   |
+    | QAArComm1 | Idea posted from API #5 | Science  |      | Content:Idea Description |

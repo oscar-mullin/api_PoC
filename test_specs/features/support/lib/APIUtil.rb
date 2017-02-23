@@ -12,10 +12,11 @@ class APIUtil
   @password = ''
   @@token = ''
   @@current_role = 'member'
+  @@response = ResponseUtil.new
 
   # role_user : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
   def initialize(role_user='member')
-    puts "Current role: '#{@@current_role}'\nNew role: '#{role_user}'"
+    puts "Current role: '#{@@current_role}'\nNew role: '#{role_user}'\nToken: '#{@@token}'"
 
     if @@token == '' or (@@current_role != role_user and not(role_user.nil?))
       @@current_role = role_user unless role_user.nil? or role_user == ''
@@ -61,20 +62,20 @@ class APIUtil
     end
 
     begin
-      $responseGet = RestClient.get(url, headers)
+      @response_get = RestClient.get(url, headers)
     rescue RestClient::Unauthorized
       createToken
       headers['Authorization'] = "Bearer #{getToken}"
       begin
-        $responseGet = RestClient.get(url, headers)
+        @response_get = RestClient.get(url, headers)
       rescue => err
-        $responseGet = err.response
+        @response_get = err.response
       end
-    rescue RestClient::Forbidden => err
-      return err.response
-    else
-      return $responseGet
+    rescue => err
+      @response_get = err.response
     end
+
+    @@response.setResponse(@response_get)
   end
 
   def makePostCall(url, header, params)
@@ -109,7 +110,7 @@ class APIUtil
     body['password'] = @password
 
     begin
-      response = RestClient.post('https://qabuilds.spigit.com/oauth/token',body)
+      response = RestClient.post("#{URI_BASE}/oauth/token",body)
     rescue RestClient::Unauthorized, RestClient::Forbidden => err
       return err.response
     else
@@ -126,6 +127,12 @@ class APIUtil
   # Method to retrieve the URI base
   def getURIBase
     URI_BASE
+  end
+
+  # Method to retrieve response data
+  # data  : Data name for element on response, current possible values: 'code', 'body'
+  def getResponseData(data)
+    @@response.getData(data)
   end
   
   # Method to Parse a string given and parse it to Hash
