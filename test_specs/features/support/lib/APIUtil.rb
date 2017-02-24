@@ -12,7 +12,7 @@ class APIUtil
   @password = ''
   @@token = ''
   @@current_role = 'member'
-  @@response = ResponseUtil.new
+  @@response = nil
 
   # role_user : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
   def initialize(role_user='member')
@@ -62,20 +62,18 @@ class APIUtil
     end
 
     begin
-      @response_get = RestClient.get(url, headers)
+      @@response = RestClient.get(url, headers)
     rescue RestClient::Unauthorized
       createToken
       headers['Authorization'] = "Bearer #{getToken}"
       begin
-        @response_get = RestClient.get(url, headers)
+        @@response = RestClient.get(url, headers)
       rescue => err
-        @response_get = err.response
+        @@response = err.response
       end
     rescue => err
-      @response_get = err.response
+      @@response = err.response
     end
-
-    @@response.setResponse(@response_get)
   end
 
   def makePostCall(url, header, params)
@@ -130,9 +128,8 @@ class APIUtil
   end
 
   # Method to retrieve response data
-  # data  : Data name for element on response, current possible values: 'code', 'body'
-  def getResponseData(data)
-    @@response.getData(data)
+  def getResponse
+    @@response
   end
   
   # Method to Parse a string given and parse it to Hash

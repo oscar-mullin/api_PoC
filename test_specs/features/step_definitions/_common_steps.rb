@@ -4,7 +4,7 @@ end
 
 Then(/^I verify Get response is (.*)$/) do |expectedResponse|
   @apiUtil = APIUtil.new(nil)
-  current_code = @apiUtil.getResponseData('code')
+  current_code = @apiUtil.getResponse.code
   fail(ArgumentError.new("Actual response: #{current_code}, Expected: #{expectedResponse}\n")) unless current_code.to_i == expectedResponse.to_i
 end
 
