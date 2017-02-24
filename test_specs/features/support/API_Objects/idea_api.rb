@@ -34,7 +34,6 @@ class IdeaAPI < APIUtil
     _findIdeaID(community_id, idea_title,offset, limit)
   end
 
-  private
   def _findIdeaID(community_id, idea_title,offset,limit)
     ideas_response = getAllIdeas(community_id, "offset:#{offset},limit:#{limit}")
     response_content = JSON.parse(ideas_response.body)['content']

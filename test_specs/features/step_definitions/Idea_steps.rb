@@ -22,5 +22,5 @@ end
 And(/^I get "([^"]*)" idea details of "([^"]*)" community$/) do |idea, _|
   ideaAPI = IdeaAPI.new
   communityAPI = CommunityAPI.new
-  ideaAPI.findIdeaID(communityAPI.getCommunityID,idea)
+  ideaAPI.getIdea(ideaAPI.findIdeaID(communityAPI.getCommunityID,idea))
 end

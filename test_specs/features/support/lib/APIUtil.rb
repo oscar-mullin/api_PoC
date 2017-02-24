@@ -85,15 +85,17 @@ class APIUtil
     end
 
     begin
-      $responsePost = RestClient.post(url, params.to_json, headers)
+      @@response = RestClient.post(url, params.to_json, headers)
     rescue RestClient::Unauthorized
       createToken
-      $responsePost = RestClient.post(url, params.to_json, headers)
-      return $responsePost
-    rescue RestClient::Forbidden,RestClient::BadRequest => err
-      return err.response
-    else
-      return $responsePost
+      headers['Authorization'] = "Bearer #{getToken}"
+      begin
+        @@response =  RestClient.post(url, params.to_json, headers)
+      rescue => err
+        @@response = err.response
+      end
+    rescue => err
+      @@response = err.response
     end
   end
 
