@@ -27,7 +27,6 @@ class CommunityAPI < APIUtil
   # Method to retrieve ID of a specific Community
   # site_name : Title of the community to retrieve its ID
   def findCommunityID(site_name)
-    community_id = ''
     community_found = false
     no_next_link = false
     offset = 0
@@ -37,16 +36,11 @@ class CommunityAPI < APIUtil
       response_content = JSON.parse(communities_response)['content']
       community = response_content.select{|h1| h1['title'] == site_name}.first
       community_found = !(community.nil?)
-      community_id = community['id'] if community_found
+      @@community_id = community['id'] if community_found
       no_next_link = !((JSON.parse(communities_response)['links'].select{|h1| h1['rel'] == 'next'}).size == 1)
       offset += 100 unless no_next_link
     end
-
-    if community_id == ''
-      fail(ArgumentError.new("'#{site_name}' site was not found."))
-    else
-      setCommunityID(community_id)
-    end
+      setCommunityID(@@community_id)
   end
 
   def getAllCommunities(params)
