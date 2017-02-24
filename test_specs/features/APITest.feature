@@ -69,9 +69,10 @@ Feature: APITest
   Scenario Outline: API - Post an idea
     Given I create a new token with "member" role
     When I retrieve the "<site>" community ID
+    When I retrieve the "<category>" category ID of <site> community
     When I post an idea on "<site>" community with Title: "<title>", Category: "<category>", Tags: "<tags>" and "<params>" parameters
     Then I verify Get response is <response_code>
     And I verify that Post Idea Response structure is the expected
   Examples:
     | site      | title                   | category | tags | params                   | response_code |
-    | QAArComm1 | Idea posted from API #5 | Science  |      | Content:Idea Description | 201           |
+    | QAArComm1 | Idea posted from API #6 | Science  |      | Content:Idea Description | 201           |

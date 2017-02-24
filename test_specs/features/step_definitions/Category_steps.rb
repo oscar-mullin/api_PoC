@@ -11,3 +11,10 @@ And(/^I verify Categories Response structure is the expected$/) do
   response_expected_message = category_api.verifyCategoriesResponseContract
   fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
 end
+
+When(/^I retrieve the "([^"]*)" category ID of (.*) community$/) do |category, _|
+  # Get Category ID
+  communityAPI = CommunityAPI.new
+  categoryAPI = CategoryAPI.new
+  categoryAPI.findCategoryID(communityAPI.getCommunityID,category)
+end
