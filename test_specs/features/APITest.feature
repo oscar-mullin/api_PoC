@@ -14,7 +14,8 @@ Feature: APITest
   @API
   Scenario Outline: API - Get specific Community
     Given I create a new token with "<role>" role
-    When I get the details of "<site>" community
+    When I retrieve the "<site>" community ID
+    And I get "<site>" community details
     Then I verify Get response is <response_code>
     And I verify Community Response structure is the expected
   Examples:
