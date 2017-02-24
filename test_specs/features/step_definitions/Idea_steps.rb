@@ -24,3 +24,9 @@ And(/^I get "([^"]*)" idea details of "([^"]*)" community$/) do |idea, _|
   communityAPI = CommunityAPI.new
   ideaAPI.getIdea(ideaAPI.findIdeaID(communityAPI.getCommunityID,idea))
 end
+
+And(/^I verify that Post Idea Response structure is the expected$/) do
+  ideaAPI = IdeaAPI.new
+  response_expected_message = ideaAPI.verifyPostIdeaResponseContract
+  fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
+end
