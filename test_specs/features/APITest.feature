@@ -75,4 +75,4 @@ Feature: APITest
     And I verify that Post Idea Response structure is the expected
   Examples:
     | site      | title                    | category | tags | params                   | response_code |
-    | QAArComm1 | Idea posted from API #14 | Science  |      | Content:Idea Description | 201           |
+    | QAArComm1 | Idea posted from API #15 | Science  |      | Content:Idea Description | 201           |

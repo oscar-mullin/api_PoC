@@ -24,16 +24,11 @@ And(/^I verify Community Response structure is the expected$/) do
   fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
 end
 
-And(/^I verify that Post Idea Response structure is the expected$/) do
-  ideaAPI = IdeaAPI.new
-  response_expected_message = ideaAPI.verifyResponseContract($responseGet.body)
-  fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
-end
-
 When(/^I retrieve the "([^"]*)" community ID$/) do |site_name|
   # Get Community ID
   communityAPI = CommunityAPI.new
   communityAPI.findCommunityID(site_name)
+  fail(ArgumentError.new("'#{site_name}' site was not found.")) unless communityAPI.getResponse.code == 200
 end
 
 And(/^I get "([^"]*)" community details$/) do |site|
