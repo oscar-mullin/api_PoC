@@ -1,4 +1,4 @@
-Feature: Communities
+Feature: Community
 
   @API
   Scenario Outline: API - ENGA-118/001 - Communities - offset & limit - VALID
@@ -45,3 +45,34 @@ Feature: Communities
     Examples:
       | offset | limit | response |
       | 0      | 10    | 401      |
+
+  @API
+  Scenario Outline: API - ENGA-120/001 - Community - get Community
+    Given I create a new token with "<role>" role
+    When I retrieve the "<site>" community ID
+    And I get "<site>" community details
+    Then I verify Get response is <response_code>
+    And I verify Community Response structure is the expected
+    Examples:
+      | site      | role   | response_code |
+      | QAArComm1 | admin  | 200           |
+      | QAArComm1 | member | 200           |
+
+  @API
+  Scenario Outline: API - ENGA-121/001 - Community - Invalid Site Name
+    Given I create a new token with "<role>" role
+    When I retrieve the "<site>" community ID
+    When I get the details of "<site>" community
+    Then I verify Get response is <response_code>
+    Examples:
+      | site       | role   | response_code |
+      | NoSiteHere | admin  | -             |
+
+  @API
+  Scenario Outline: API - ENGA-121/001 - Community - Invalid ID
+    Given I create a new token with "<role>" role
+    When I get the details of "<site>" community
+    Then I verify Get response is <response_code>
+    Examples:
+      | site   | role   | response_code |
+      | NoSite | admin  | 200           |
