@@ -33,23 +33,24 @@ Feature: APITest
   @API
   Scenario Outline: API - Get Ideas from a specific Community
     Given I create a new token with "member" role
+    When I retrieve the "<site>" community ID
     Then I get the ideas of "<site>" community with "<params>" parameters
+    Then I verify Get response is <response_code>
+    And I verify Ideas Response structure is the expected
   Examples:
-    | site      | params           |
-    | QAArComm1 | offset:0,limit:5 |
+    | site      | params           | response_code |
+    | QAArComm1 | offset:0,limit:5 | 200           |
 
   @API
   Scenario Outline: API - Get specific Idea
     Given I create a new token with "<role>" role
-    When I post an idea on "<string>" community with Title: "<string>", Category: "<string>", Tags: "<string>" and "<string>" parameters
-    Then I get the details of recently posted idea
+    When I retrieve the "<site>" community ID
+    And I get "<idea_title>" idea details of "<site>" community
+    Then I verify Get response is <response_code>
+    And I verify Idea Response structure is the expected
   Examples:
-    | site      | idea_title        |
-    | QAArComm1 | Testing Post Idea |
-    | QAArComm1 | Testing "#$"#$Post Idea1 |
-    | QAArComm1 |  |
-    | QAArComm1 | Testing Post Idea3Testing Post Idea3Testing Post Idea3Testing Post Idea3Testing Post Idea3Testing Post Idea3Testing Post Idea3 |
-    | QAArComm1 | Te |
+    | site      | role       | idea_title              | response_code |
+    | QAArComm1 | superadmin | Idea posted from API #1 | 200           |
 
   @API
   Scenario Outline: API - Get Idea Template from a specific Community
@@ -61,9 +62,10 @@ Feature: APITest
 
   Scenario Outline: API - Post an idea
     Given I create a new token with "member" role
+    When I retrieve the "<site>" community ID
     When I post an idea on "<site>" community with Title: "<title>", Category: "<category>", Tags: "<tags>" and "<params>" parameters
     Then I verify Get response is <response_code>
     And I verify that Post Idea Response structure is the expected
   Examples:
-    | site      | title                   | category | tags | params                   |
-    | QAArComm1 | Idea posted from API #5 | Science  |      | Content:Idea Description |
+    | site      | title                   | category | tags | params                   | response_code |
+    | QAArComm1 | Idea posted from API #5 | Science  |      | Content:Idea Description | 201           |

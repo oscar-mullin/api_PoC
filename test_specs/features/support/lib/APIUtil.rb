@@ -155,4 +155,20 @@ class APIUtil
     return parameters
   end
 
+  def verifyResponseContract(base_contract)
+    final_message = ''
+    response_content = JSON.parse(getResponse)
+
+    if response_content.size == base_contract.size
+      response_content.each do |key, _|
+        unless base_contract.include?(key)
+          final_message = "Element: #{key} was not expected, expected keys are: #{base_contract}"
+          break
+        end
+      end
+    else
+      final_message = "Elements found: #{response_content.keys}\nElements expected: #{base_contract}"
+    end
+    return final_message
+  end
 end
