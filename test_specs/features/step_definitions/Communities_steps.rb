@@ -19,7 +19,7 @@ And(/^I verify List Communities Response structure is the expected$/) do
 end
 
 And(/^I verify Community Response structure is the expected$/) do
-  community_api = CommunityAPI.new
+  community_api = CommunityAPI.new(nil)
   response_expected_message = community_api.verifyCommunityResponseContract
   fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
 end

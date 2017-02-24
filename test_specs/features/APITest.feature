@@ -25,10 +25,13 @@ Feature: APITest
   @API
   Scenario Outline: API - Get Categories from a specific Community
     Given I create a new token with "admin" role
+    When I retrieve the "<site>" community ID
     Then I get the categories of "<site>" community with "<params>" parameters
+    And I verify Get response is <response_code>
+    And I verify Categories Response structure is the expected
   Examples:
-    | site      | params           |
-    | QAArComm1 | offset:0,limit:5 |
+    | site      | params           | response_code |
+    | QAArComm1 | offset:0,limit:5 | 200           |
 
   @API
   Scenario Outline: API - Get Ideas from a specific Community
@@ -54,10 +57,13 @@ Feature: APITest
   @API
   Scenario Outline: API - Get Idea Template from a specific Community
     Given I create a new token with "admin" role
+    When I retrieve the "<site>" community ID
     Then I get the Idea Template of "<site>" community
+    And I verify Get response is <response_code>
+    And I verify Idea Template Response structure is the expected
   Examples:
-    | site      |
-    | QAArComm1 |
+    | site      | response_code |
+    | QAArComm1 | 200           |
 
   Scenario Outline: API - Post an idea
     Given I create a new token with "member" role

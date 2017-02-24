@@ -54,10 +54,8 @@ class CommunityAPI < APIUtil
     makeGetCall(url_base, nil, params)
   end
 
-  # Method to verify the contract of a GET call
-  # response_contract : Response contract that will be compared with the expected contract for Community API
+  # Method to verify the contract of a GET call for a specific Community
   def verifyCommunityResponseContract
-    final_message = ''
     response_content = JSON.parse(@@response)
     if response_content['site_type'] == 'REGULAR'
       @community_response_structure.push('status')
@@ -73,36 +71,12 @@ class CommunityAPI < APIUtil
       @community_response_structure.push('parent_id') if response_content['parent_id'].to_i > 0
     end
 
-    if response_content.size == @community_response_structure.size
-      response_content.each do |key, _|
-        unless @community_response_structure.include?(key)
-          final_message = "Element: #{key} was not expected, expected keys are: #{@community_response_structure}"
-          break
-        end
-      end
-    else
-      final_message = "Elements found: #{response_content.keys}\nElements expected: #{@community_response_structure}"
-    end
-    return final_message
+    verifyResponseContract(@community_response_structure)
   end
 
-  # Method to verify the contract of a GET call
-  # response_contract : Response contract that will be compared with the expected contract for Communities API
+  # Method to verify the contract of a GET call for all Communities
   def verifyCommunitiesResponseContract
-    final_message = ''
-    response_content = JSON.parse(getResponse)
-    puts "HERE: #{response_content} \n CHECK: #{@communities_response_structure}"
-    if response_content.size == @communities_response_structure.size
-      response_content.each do |key, _|
-        unless @communities_response_structure.include?(key)
-          final_message = "Element: #{key} was not expected, expected keys are: #{@communities_response_structure}"
-          break
-        end
-      end
-    else
-      final_message = "Elements found: #{response_content.keys}\nElements expected: #{@communities_response_structure}"
-    end
-    return final_message
+    verifyResponseContract(@community_response_structure)
   end
 
 end
