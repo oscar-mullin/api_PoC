@@ -108,7 +108,14 @@ class ReportBuilder
     all_scenarios = scenarios all_features
     all_steps = steps all_scenarios
     all_tags = tags all_scenarios
-    total_time = total_time all_features
+    #Getting total time of the most long thread
+    # total_time = total_time all_features
+    total_time = 0
+    input.each do |file|
+      actual_feature = features [file] rescue (raise 'ReportBuilderParsingError')
+      actual_total_time = total_time actual_feature
+      total_time = total_time > actual_total_time ? total_time : actual_total_time
+    end
     feature_data = data all_features
     scenario_data = data all_scenarios
     step_data = data all_steps
