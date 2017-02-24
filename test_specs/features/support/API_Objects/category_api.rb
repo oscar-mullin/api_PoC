@@ -24,7 +24,6 @@ class CategoryAPI < APIUtil
   # community_id   : Community ID where the category will be retrieved
   # category_title : Category's title
   def findCategoryID(community_id, category_title)
-    category_id = ''
     category_found = false
     no_next_link = false
     offset = 0
@@ -34,12 +33,10 @@ class CategoryAPI < APIUtil
       response_content = JSON.parse(categories_response.body)['content']
       category = response_content.select{|h1| h1['title'] == category_title}.first
       category_found = !(category.nil?)
-      category_id = category['id'] if category_found
+      @@category_id = category['id'] if category_found
       no_next_link = !((JSON.parse(categories_response.body)['links'].select{|h1| h1['rel'] == 'next'}).nil?)
       offset += 100 unless no_next_link
     end
-
-    return category_id
   end
 
   # Method to verify the contract of a GET call for all Categories

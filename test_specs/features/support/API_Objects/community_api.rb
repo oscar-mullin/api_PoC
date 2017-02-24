@@ -76,7 +76,7 @@ class CommunityAPI < APIUtil
 
   # Method to verify the contract of a GET call for all Communities
   def verifyCommunitiesResponseContract
-    verifyResponseContract(@community_response_structure)
+    verifyResponseContract(@communities_response_structure)
   end
 
 end

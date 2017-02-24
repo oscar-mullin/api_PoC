@@ -25,8 +25,8 @@ And(/^I verify Community Response structure is the expected$/) do
 end
 
 And(/^I verify that Post Idea Response structure is the expected$/) do
-  post_idea_api = PostIdeaAPI.new
-  response_expected_message = post_idea_api.verifyResponseContract($responseGet.body)
+  ideaAPI = IdeaAPI.new
+  response_expected_message = ideaAPI.verifyResponseContract($responseGet.body)
   fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
 end
 

@@ -85,15 +85,17 @@ class APIUtil
     end
 
     begin
-      $responsePost = RestClient.post(url, params.to_json, headers)
+      @@response = RestClient.post(url, params.to_json, headers)
     rescue RestClient::Unauthorized
       createToken
-      $responsePost = RestClient.post(url, params.to_json, headers)
-      return $responsePost
-    rescue RestClient::Forbidden,RestClient::BadRequest => err
-      return err.response
-    else
-      return $responsePost
+      headers['Authorization'] = "Bearer #{getToken}"
+      begin
+        @@response =  RestClient.post(url, params.to_json, headers)
+      rescue => err
+        @@response = err.response
+      end
+    rescue => err
+      @@response = err.response
     end
   end
 
@@ -155,4 +157,20 @@ class APIUtil
     return parameters
   end
 
+  def verifyResponseContract(base_contract)
+    final_message = ''
+    response_content = JSON.parse(getResponse)
+
+    if response_content.size == base_contract.size
+      response_content.each do |key, _|
+        unless base_contract.include?(key)
+          final_message = "Element: #{key} was not expected, expected keys are: #{base_contract}"
+          break
+        end
+      end
+    else
+      final_message = "Elements found: #{response_content.keys}\nElements expected: #{base_contract}"
+    end
+    return final_message
+  end
 end
