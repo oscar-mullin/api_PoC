@@ -13,9 +13,13 @@ class APIUtil
   @@current_role = ''
   @@token = ''
   @@response = nil
+  @@authenticationHelper = nil
 
+
+=begin
   # role_user : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
   def initialize(role_user='member',requiresAuthentication=true,username='',password='')
+    @@authenticationHelper = AuthenticationHelper.new
     @executor = APIClientWrapper.new
     @requiresAuthentication = requiresAuthentication
     needsNewToken = getUser(role_user,username,password)
@@ -24,20 +28,7 @@ class APIUtil
     end
   end
 
-  def getUser(role_user='member',username='',password='')
-    if(username == '' and password == '')
-      getDefaultUserFromRole(role_user)
-    else
-      setUserFromUsernameAndPassword(username,password)
-    end
-  end
-
-  def setUserFromUsernameAndPassword(username,password)
-    @username = username
-    @password = password
-  end
-
-  def getDefaultUserFromRole(role_user)
+def getDefaultUserFromRole(role_user)
     if @@token == '' or (@@current_role != role_user and not(role_user.nil?))
       userPrefix = "API_USERNAME_"
       passPrefix = "API_PASSWORD_"
@@ -57,6 +48,70 @@ class APIUtil
     end
     return false
   end
+
+=end
+
+
+  # role_user : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
+  def initialize(role_user='member',requiresAuthentication=true,username='',password='')
+    if(@@authenticationHelper.nil?)
+      @@authenticationHelper = AuthenticationHelper.new
+    end
+    @executor = APIClientWrapper.new
+    @requiresAuthentication = requiresAuthentication
+    if(@requiresAuthentication and getUser(role_user,username,password))
+      obtainToken(role_user,username)
+    end
+  end
+
+  def obtainToken(role_user,username='')
+    if(@@authenticationHelper.nil? or !@@authenticationHelper.existsToken(role_user,username) or @@authenticationHelper.isTokenExpired(role_user,username))
+      puts "Creating token for #{role_user}"
+      createToken
+      @@authenticationHelper.setToken(role_user,username,getToken)
+      return getToken
+    else
+      puts "Getting token for #{role_user}"
+      @@token = @@authenticationHelper.getToken(role_user,username)
+      return @@token
+    end
+  end
+
+  def isAValidRole(role_user)
+    validRoles = ["SUPERADMIN","ADMIN","MEMBER","NONE"]
+    if(!validRoles.include? role_user)
+      fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
+    end
+  end
+
+  def getDefaultUserFromRoleAndDefineNeedForToken(role_user)
+    if(role_user.nil? or role_user.upcase == "NONE")
+      return false
+    end
+    isAValidRole(role_user.upcase)
+    @@current_role = role_user.upcase
+    userPrefix = "API_USERNAME_"
+    passPrefix = "API_PASSWORD_"
+    @username = ENV[userPrefix+@@current_role]
+    @password = ENV[passPrefix+@@current_role]
+        return true;
+  end
+
+
+  def getUser(role_user='member',username='',password='')
+    if(username == '' and password == '')
+      getDefaultUserFromRoleAndDefineNeedForToken(role_user)
+    else
+      setUserFromUsernameAndPassword(username,password)
+    end
+  end
+
+
+  def setUserFromUsernameAndPassword(username,password)
+    @username = username
+    @password = password
+  end
+
 
   def makeGetCall(url,header, params)
     @@response = ResponseWrapper.new
