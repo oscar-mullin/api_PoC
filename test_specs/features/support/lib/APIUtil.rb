@@ -6,51 +6,15 @@ class APIUtil
   CLIENT_ID = 'MB4N5QCM1mC5'
   CLIENT_SECRET = 'MmS2cuWjEnNgHcYSWxkDES5xznDsDQeLqDBIUyOFqZEGz4KT'
 
-  @username = ''
-  @password = ''
-  @executor = nil
-  @requiresAuthentication = true
   @@current_role = ''
   @@token = ''
   @@response = nil
   @@authenticationHelper = nil
 
-
-=begin
-  # role_user : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
-  def initialize(role_user='member',requiresAuthentication=true,username='',password='')
-    @@authenticationHelper = AuthenticationHelper.new
-    @executor = APIClientWrapper.new
-    @requiresAuthentication = requiresAuthentication
-    needsNewToken = getUser(role_user,username,password)
-    if(@requiresAuthentication and needsNewToken)
-      createToken
-    end
-  end
-
-def getDefaultUserFromRole(role_user)
-    if @@token == '' or (@@current_role != role_user and not(role_user.nil?))
-      userPrefix = "API_USERNAME_"
-      passPrefix = "API_PASSWORD_"
-      @@current_role = role_user.upcase unless role_user.nil? or role_user == ''
-      validRoles = ["SUPERADMIN","ADMIN","MEMBER","NONE"]
-      if(!validRoles.include? @@current_role)
-        fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
-      end
-      if(@@current_role!="NONE")
-        @username = ENV[userPrefix+@@current_role]
-        @password = ENV[passPrefix+@@current_role]
-        return true
-      else
-        @@token = '_'
-        return false
-      end
-    end
-    return false
-  end
-
-=end
-
+  @username = ''
+  @password = ''
+  @executor = nil
+  @requiresAuthentication = true
 
   # role_user : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
   def initialize(role_user='member',requiresAuthentication=true,username='',password='')
