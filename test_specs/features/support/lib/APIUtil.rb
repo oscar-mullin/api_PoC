@@ -3,120 +3,95 @@ class APIUtil
   URI_BASE = ENV['URI_BASE']
   GRANT_TYPE = 'password'
   # CODE = '8atTBIOh'
-
-  # These elements can be set from UI web engage
   CLIENT_ID = 'MB4N5QCM1mC5'
   CLIENT_SECRET = 'MmS2cuWjEnNgHcYSWxkDES5xznDsDQeLqDBIUyOFqZEGz4KT'
 
   @username = ''
   @password = ''
+  @executor = nil
+  @requiresAuthentication = true
+  @@current_role = ''
   @@token = ''
-  @@current_role = 'member'
   @@response = nil
 
   # role_user : Specify the role to select the credentials required to execute the API calls, roles available: 'superadmin', 'admin', 'member'
-  def initialize(role_user='member')
-    puts "Current role: '#{@@current_role}'\nNew role: '#{role_user}'\nToken: '#{@@token}'"
-
-    if @@token == '' or (@@current_role != role_user and not(role_user.nil?))
-      @@current_role = role_user unless role_user.nil? or role_user == ''
-      case @@current_role
-        when 'superadmin' then
-          @username = ENV['API_USERNAME_SUPERADMIN']
-          @password = ENV['API_PASSWORD_SUPERADMIN']
-
-        when 'admin' then
-          @username = ENV['API_USERNAME_ADMIN']
-          @password = ENV['API_PASSWORD_ADMIN']
-
-        when 'member' then
-          @username = ENV['API_USERNAME_MEMBER']
-          @password = ENV['API_PASSWORD_MEMBER']
-
-        when 'none' then
-          @@token = '_'
-          return
-
-        else
-          fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
-      end
-
-      # Retrieve token
+  def initialize(role_user='member',requiresAuthentication=true,username='',password='')
+    @executor = APIClientWrapper.new
+    @requiresAuthentication = requiresAuthentication
+    needsNewToken = getUser(role_user,username,password)
+    if(@requiresAuthentication and needsNewToken)
       createToken
-    else
-      puts "TOKEN WAS NOT CREATED, USING ROLE: '#{@@current_role}'"
     end
   end
 
-  def makeGetCall(url, header, params)
-    headers = Hash.new
-    headers['Authorization'] = "Bearer #{getToken}"
-
-    unless header.nil? or header == ''
-      headers = headers.merge(__parseStringToHash__(header))
+  def getUser(role_user='member',username='',password='')
+    if(username == '' and password == '')
+      getDefaultUserFromRole(role_user)
+    else
+      setUserFromUsernameAndPassword(username,password)
     end
+  end
 
-    # if no params were sent then no need to add an empty hash
-    unless params.nil? or params == ''
-      headers['params'] = __parseStringToHash__(params)
-    end
+  def setUserFromUsernameAndPassword(username,password)
+    @username = username
+    @password = password
+  end
 
-    begin
-      @@response = RestClient.get(url, headers)
-    rescue RestClient::Unauthorized
-      createToken
-      headers['Authorization'] = "Bearer #{getToken}"
-      begin
-        @@response = RestClient.get(url, headers)
-      rescue => err
-        @@response = err.response
+  def getDefaultUserFromRole(role_user)
+    if @@token == '' or (@@current_role != role_user and not(role_user.nil?))
+      userPrefix = "API_USERNAME_"
+      passPrefix = "API_PASSWORD_"
+      @@current_role = role_user.upcase unless role_user.nil? or role_user == ''
+      validRoles = ["SUPERADMIN","ADMIN","MEMBER","NONE"]
+      if(!validRoles.include? @@current_role)
+        fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
       end
+      if(@@current_role!="NONE")
+        @username = ENV[userPrefix+@@current_role]
+        @password = ENV[passPrefix+@@current_role]
+        return true
+      else
+        @@token = '_'
+        return false
+      end
+    end
+    return false
+  end
+
+  def makeGetCall(url,header, params)
+    @@response = ResponseWrapper.new
+    begin
+      @executor.get(url,header,params,@requiresAuthentication,getToken)
+      @@response.body = @executor.response.body
+      @@response.code = @executor.response.code
     rescue => err
       @@response = err.response
     end
   end
 
   def makePostCall(url, header, params)
-    headers = Hash.new
-    headers['Authorization'] = "Bearer #{getToken}"
-
-    unless header.nil? or header == ''
-      headers = headers.merge(header)
-    end
-
+    @@response = ResponseWrapper.new
     begin
-      @@response = RestClient.post(url, params.to_json, headers)
-    rescue RestClient::Unauthorized
-      createToken
-      headers['Authorization'] = "Bearer #{getToken}"
-      begin
-        @@response =  RestClient.post(url, params.to_json, headers)
-      rescue => err
-        @@response = err.response
-      end
+      @executor.post(url,header,params,@requiresAuthentication,getToken)
+      @@response.body = @executor.response.body
+      @@response.code = @executor.response.code
     rescue => err
       @@response = err.response
     end
   end
 
   def createToken
-    puts "CREATING TOKEN WITH ROLE: '#{@@current_role}'..."
+    @@response = ResponseWrapper.new
     body = Hash.new
-
     body['grant_type'] = GRANT_TYPE
     body['client_id'] = CLIENT_ID
     body['client_secret'] = CLIENT_SECRET
     body['username'] = @username
     body['password'] = @password
-
-    begin
-      response = RestClient.post("#{URI_BASE}/oauth/token",body)
-    rescue RestClient::Unauthorized, RestClient::Forbidden => err
-      return err.response
-    else
-      @@token = JSON.parse(response)['access_token']
-      return response
-    end
+    @executor.token("#{getURIBase}/oauth/token",body)
+    @@response.code = @executor.response.code
+    @@response.body = @executor.response.body
+    @@token = JSON.parse(@@response.body)['access_token']
   end
 
   # Method to retrieve the current token
@@ -133,34 +108,14 @@ class APIUtil
   def getResponse
     @@response
   end
-  
-  # Method to Parse a string given and parse it to Hash
-  # string_to_parse : String to be parsed, format should be:
-  # <key1>:<value1>,<key2>:<value2>,<...
-  # e.g. foo1:bar1,foo2:bar2
-  def __parseStringToHash__(string_to_parse)
-    parameters = Hash.new
-    string_to_parse.split(',').each do |pair|
-      fail(ArgumentError.new("'#{string_to_parse}' string format is not correct\n"+
-                              "The expected format should be:\n"+
-                              "<key1>:<value1>,<key2>:<value2>,<...\n"+
-                              "e.g. foo1:bar1,foo2:bar2\n")) if pair == '' or pair.nil?
-      pairs = pair.split(':')
 
-      fail(ArgumentError.new("'#{string_to_parse}' string format is not correct\n"+
-                              "The expected format should be:\n"+
-                              "<key1>:<value1>,<key2>:<value2>,<...\n"+
-                              "e.g. foo1:bar1,foo2:bar2\n")) if pairs[0].nil? or pairs[1].nil? or pairs[0] == '' or pairs[1] == ''
-
-      parameters[pairs[0]] = pairs[1].include?('{') ? __parseStringToHash__(pairs[1]) : pairs[1]
-    end
-    return parameters
+  def getExecutor
+    @executor
   end
 
   def verifyResponseContract(base_contract)
     final_message = ''
-    response_content = JSON.parse(getResponse)
-
+    response_content = JSON.parse(getResponse.body)
     if response_content.size == base_contract.size
       response_content.each do |key, _|
         unless base_contract.include?(key)
