@@ -3,8 +3,12 @@ class APIUtil
   URI_BASE = ENV['URI_BASE']
   GRANT_TYPE = 'password'
   # CODE = '8atTBIOh'
-  CLIENT_ID = 'MB4N5QCM1mC5'
-  CLIENT_SECRET = 'MmS2cuWjEnNgHcYSWxkDES5xznDsDQeLqDBIUyOFqZEGz4KT'
+  # Application Credentials for qabuilds
+  # CLIENT_ID = 'MB4N5QCM1mC5'
+  # CLIENT_SECRET = 'MmS2cuWjEnNgHcYSWxkDES5xznDsDQeLqDBIUyOFqZEGz4KT'
+  # Application Credentials for qa40
+  CLIENT_ID = '1R01ONvkoe5L'
+  CLIENT_SECRET = 'v2mDLVyhXTOyLyb8vDKy2Wdw6wPHFPAnRxE2CjehIVgRjdRW'
 
   @@current_role = ''
   @@token = ''
