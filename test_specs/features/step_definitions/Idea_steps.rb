@@ -30,3 +30,17 @@ And(/^I verify that Post Idea Response structure is the expected$/) do
   response_expected_message = ideaAPI.verifyPostIdeaResponseContract
   fail(ArgumentError.new("Error in Response Contract expected\n#{response_expected_message}")) unless response_expected_message == ''
 end
+
+When(/^I post an idea on "([^"]*)" community with Title: "([^"]*)", Category: "([^"]*)", Tags: "([^"]*)" and "([^"]*)" parameters$/) do |site_name, idea_title, category_title, tags, params|
+  # Get Community ID
+  communityAPI = CommunityAPI.new
+  community_id = communityAPI.getCommunityID
+
+  # Get Category ID
+  categoryAPI = CategoryAPI.new
+  category_id = categoryAPI.getCategoryID
+
+  # Get response for the Rest API Call and print it raw
+  ideaAPI = IdeaAPI.new
+  ideaAPI.postIdea(community_id, idea_title, category_id, tags, params)
+end

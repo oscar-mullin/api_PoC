@@ -35,14 +35,14 @@ class IdeaAPI < APIUtil
   end
 
   def _findIdeaID(community_id, idea_title,offset,limit)
-    ideas_response = getAllIdeas(community_id, "offset:#{offset},limit:#{limit}")
-    response_content = JSON.parse(ideas_response.body)['content']
+    getAllIdeas(community_id, "offset:#{offset},limit:#{limit}")
+    response_content = JSON.parse(@@response.body)['content']
     idea = response_content.select{|h1| h1['title'] == idea_title}.first
     idea_found = !(idea.nil?)
     if idea_found
       @@idea_id = idea['id']
     else
-      no_next_link = !((JSON.parse(ideas_response.body)['links'].select{|h1| h1['rel'] == 'next'}).nil?)
+      no_next_link = !((JSON.parse(@@response.body)['links'].select{|h1| h1['rel'] == 'next'}).nil?)
       unless no_next_link
         _findIdeaID(community_id, idea_title,offset+limit,limit)
       end
@@ -78,7 +78,7 @@ class IdeaAPI < APIUtil
 
     # if no params were sent then no need to add an empty hash
     unless params.nil? or params == ''
-      parameters['template_fields'] = __parseStringToHash__(params)
+      parameters['template_fields'] = APIClientWrapper.new.__parseStringToHash__(params)
     end
 
     makePostCall(url_base, headers, parameters)
