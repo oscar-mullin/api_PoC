@@ -233,9 +233,9 @@ class ReportBuilder
                       current_feature_time = current_feature['duration']
                     end
                   end
-                  # @builder << "<strong>#{feature['keyword']}</strong> #{feature['name']} (#{duration(current_feature_time)})"
+                  @builder << "<strong>#{feature['keyword']}</strong> #{feature['name']} (#{duration(current_feature_time)})"
                   # END
-                  @builder << "<strong>#{feature['keyword']}</strong> #{feature['name']} (#{duration(feature['duration'])})"
+                  #@builder << "<strong>#{feature['keyword']}</strong> #{feature['name']} (#{duration(feature['duration'])})"
                 end
               end
               @builder.div do
