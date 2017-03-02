@@ -16,7 +16,7 @@ class APIUtil
   # CLIENT_SECRET = 'gmTV6EIRiBQSgNE4Wj7fXdndLJMmUvtpHreuKIpTXMDV2RjC'
 
   @@current_role = ''
-  @@token = ''
+  @@token = '_'
   @@response = nil
   @@authenticationHelper = nil
 
@@ -33,7 +33,11 @@ class APIUtil
     @executor = APIClientWrapper.new
     @requiresAuthentication = requiresAuthentication
     if(@requiresAuthentication and getUser(role_user,username,password))
-      obtainToken(role_user,username)
+      if (role_user.upcase == 'NONE')
+        @@token = '_'
+      else
+        obtainToken(role_user,username)
+      end
     end
   end
 
@@ -51,23 +55,23 @@ class APIUtil
   end
 
   def isAValidRole(role_user)
-    validRoles = ["SUPERADMIN","ADMIN","MEMBER","NONE"]
+    validRoles = ['SUPERADMIN','ADMIN','MEMBER','RESTRICTED','NONE']
     if(!validRoles.include? role_user)
       fail(ArgumentError.new("'#{role_user}' role is not defined, current roles are:\nsuperadmin\nadmin\nmember\n"))
     end
   end
 
   def getDefaultUserFromRoleAndDefineNeedForToken(role_user)
-    if(role_user.nil? or role_user.upcase == "NONE")
+    if(role_user.nil?)
       return false
     end
     isAValidRole(role_user.upcase)
     @@current_role = role_user.upcase
-    userPrefix = "API_USERNAME_"
-    passPrefix = "API_PASSWORD_"
+    userPrefix = 'API_USERNAME_'
+    passPrefix = 'API_PASSWORD_'
     @username = ENV[userPrefix+@@current_role]
     @password = ENV[passPrefix+@@current_role]
-        return true;
+    return true;
   end
 
 

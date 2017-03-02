@@ -1,6 +1,6 @@
 class IdeaAPI < APIUtil
 
-  @@idea_id = ''
+  @@idea_id = '_'
 
   def initialize(role_user=nil)
     super(role_user)
@@ -31,6 +31,7 @@ class IdeaAPI < APIUtil
   def findIdeaID(community_id, idea_title)
     offset = 0
     limit = 100
+    @@idea_id = '_'
     _findIdeaID(community_id, idea_title,offset, limit)
   end
 

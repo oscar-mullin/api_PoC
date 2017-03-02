@@ -42,3 +42,8 @@ And(/^I get "([^"]*)" community details$/) do |site|
   communityAPI = CommunityAPI.new
   communityAPI.getCommunity(communityAPI.getCommunityID)
 end
+
+And(/^I get community details of the site with "([^"]*)" ID$/) do |site_id|
+  communityAPI = CommunityAPI.new
+  communityAPI.getCommunity(site_id)
+end

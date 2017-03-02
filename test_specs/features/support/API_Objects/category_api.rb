@@ -1,7 +1,7 @@
 require_relative '../../support/lib/APIUtil'
 class CategoryAPI < APIUtil
 
-  @@category_id = ''
+  @@category_id = '_'
 
   def initialize(role_user=nil)
     super(role_user)
@@ -27,6 +27,7 @@ class CategoryAPI < APIUtil
     category_found = false
     no_next_link = false
     offset = 0
+    @@category_id = '_'
 
     until category_found or no_next_link
       getAllCategories(community_id, "offset:#{offset},limit:100")
