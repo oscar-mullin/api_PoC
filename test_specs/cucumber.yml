@@ -5,6 +5,8 @@ default:
   API_PASSWORD_ADMIN=Control1234
   API_USERNAME_MEMBER=chris1
   API_PASSWORD_MEMBER=Control123
+  API_USERNAME_RESTRICTED=restricted
+  API_PASSWORD_RESTRICTED=Control123
 
   URI_BASE=https://qa40.spigit.com
 
@@ -17,6 +19,8 @@ parallel:
   API_PASSWORD_ADMIN=Control1234
   API_USERNAME_MEMBER=chris1
   API_PASSWORD_MEMBER=Control123
+  API_USERNAME_RESTRICTED=restricted
+  API_PASSWORD_RESTRICTED=Control123
 
   URI_BASE=https://qa40.spigit.com
 

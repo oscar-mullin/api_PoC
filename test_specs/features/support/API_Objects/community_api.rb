@@ -1,7 +1,7 @@
 require_relative '../../support/lib/APIUtil'
 class CommunityAPI < APIUtil
   
-  @@community_id = ''
+  @@community_id = '_'
 
   def initialize(role_user=nil)
     super(role_user)
@@ -30,6 +30,7 @@ class CommunityAPI < APIUtil
     community_found = false
     no_next_link = false
     offset = 0
+    @@community_id = '_'
 
     until community_found or no_next_link
       getAllCommunities("offset:#{offset},limit:100")
