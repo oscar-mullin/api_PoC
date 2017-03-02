@@ -6,9 +6,14 @@ class APIUtil
   # Application Credentials for qabuilds
   # CLIENT_ID = 'MB4N5QCM1mC5'
   # CLIENT_SECRET = 'MmS2cuWjEnNgHcYSWxkDES5xznDsDQeLqDBIUyOFqZEGz4KT'
+
   # Application Credentials for qa40
   CLIENT_ID = '1R01ONvkoe5L'
   CLIENT_SECRET = 'v2mDLVyhXTOyLyb8vDKy2Wdw6wPHFPAnRxE2CjehIVgRjdRW'
+
+  # Application Credentials for qa40automation
+  # CLIENT_ID = 'kMMKbilBGAUh'
+  # CLIENT_SECRET = 'gmTV6EIRiBQSgNE4Wj7fXdndLJMmUvtpHreuKIpTXMDV2RjC'
 
   @@current_role = ''
   @@token = ''

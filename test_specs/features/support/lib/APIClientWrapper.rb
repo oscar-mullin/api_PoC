@@ -8,8 +8,7 @@ class APIClientWrapper
   end
 
   def get(url, header, params,requiresAuthorization=true, token='')
-    headers = Hash.new
-    setHeaders(headers,requiresAuthorization,token,header)
+    headers = setHeaders(requiresAuthorization,token,header)
     setParams(headers,params)
 
 # USING RESTCLIENT
@@ -28,8 +27,7 @@ class APIClientWrapper
   end
 
   def post(url,header,params,requiresAuthorization=true,token='')
-    headers = Hash.new
-    setHeaders(headers,requiresAuthorization,token,header)
+    headers = setHeaders(requiresAuthorization,token,header)
     resp = RestClient.post(url, params.to_json, headers)
     @response.code = resp.code
     @response.body = resp.body
@@ -50,13 +48,15 @@ class APIClientWrapper
 =end
   end
 
-  def setHeaders(headersHash,requiresAuthorization=true,token,elementsToAdd)
+  def setHeaders(requiresAuthorization=true,token,elementsToAdd)
+    headersHash = Hash.new
     if(requiresAuthorization)
       headersHash['Authorization'] = "Bearer #{token}"
     end
     unless elementsToAdd.nil? or elementsToAdd == ''
-      headersHash = headersHash.merge(__parseStringToHash__(elementsToAdd))
+      headersHash = headersHash.merge(elementsToAdd)
     end
+    return headersHash
   end
 
   def setParams(hash,elementsToAdd)

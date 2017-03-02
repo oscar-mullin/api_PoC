@@ -1,4 +1,4 @@
-Feature: APITest
+Feature: BVT
 
   # API calls test executed over Engage API framework
   @API
@@ -8,8 +8,8 @@ Feature: APITest
     Then I verify Get response is <response_code>
     And I verify List Communities Response structure is the expected
   Examples:
-    | params           | response_code |user_role|
-    | offset:0,limit:5 | 200           |superadmin|
+    | params           | response_code | user_role  |
+    | offset:0,limit:5 | 200           | superadmin |
 
   @API
   Scenario Outline: API - Get specific Community

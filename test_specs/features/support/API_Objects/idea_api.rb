@@ -75,6 +75,7 @@ class IdeaAPI < APIUtil
     parameters['title'] = idea_title
     parameters['category_id'] = category_id.to_i
     parameters['tags'] = tags.nil? ? '' : tags
+    parameters['post_anonymously'] = false
 
     # if no params were sent then no need to add an empty hash
     unless params.nil? or params == ''

@@ -42,5 +42,7 @@ When(/^I post an idea on "([^"]*)" community with Title: "([^"]*)", Category: "(
 
   # Get response for the Rest API Call and print it raw
   ideaAPI = IdeaAPI.new
+  suffix = (Time.now.to_f*1000).to_i.to_s
+  idea_title = idea_title + ' ' + suffix
   ideaAPI.postIdea(community_id, idea_title, category_id, tags, params)
 end
