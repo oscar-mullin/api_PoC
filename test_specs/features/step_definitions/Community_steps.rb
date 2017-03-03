@@ -1,4 +1,11 @@
 require_relative '../support/API_Objects/community_api'
+
+Given(/^I get all the communities with "([^"]*)" parameters$/) do |params|
+  # Get response for the Rest API Call and print it raw
+  communityAPI = CommunityAPI.new
+  communityAPI.getAllCommunities(params)
+end
+
 Then(/^I get all the communities with offset (.*) and limit (.*) parameters$/) do |offset, limit|
   communityAPI = CommunityAPI.new
   if offset != '' and limit != ''
@@ -34,4 +41,9 @@ end
 And(/^I get "([^"]*)" community details$/) do |site|
   communityAPI = CommunityAPI.new
   communityAPI.getCommunity(communityAPI.getCommunityID)
+end
+
+And(/^I get community details of the site with "([^"]*)" ID$/) do |site_id|
+  communityAPI = CommunityAPI.new
+  communityAPI.getCommunity(site_id)
 end

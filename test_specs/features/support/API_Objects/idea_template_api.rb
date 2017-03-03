@@ -8,7 +8,7 @@ class IdeaTemplateAPI < APIUtil
 
   # Method to retrieve Idea Template of a specific community.
   # community_id  : Community ID to retrieve its idea template
-  def getIdeaTemplate(makeGetCall)
+  def getIdeaTemplate(community_id)
     url_base = URI_BASE + "/api/v1/communities/#{community_id}/idea-template"
     response = makeGetCall(url_base, nil, nil)
     return response

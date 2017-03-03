@@ -108,14 +108,33 @@ class ReportBuilder
     all_scenarios = scenarios all_features
     all_steps = steps all_scenarios
     all_tags = tags all_scenarios
-    #Getting total time of the most long thread
-    # total_time = total_time all_features
+    total_time = total_time all_features
+    # Getting total time of the longest thread
     total_time = 0
+    @features = nil
     input.each do |file|
-      actual_feature = features [file] rescue (raise 'ReportBuilderParsingError')
-      actual_total_time = total_time actual_feature
+      actual_features = features [file] rescue (raise 'ReportBuilderParsingError')
+      actual_total_time = total_time actual_features
+      # Getting the longest total time from each thread
       total_time = total_time > actual_total_time ? total_time : actual_total_time
+      # Getting the longest total time from each feature, this value will be used on the final report for each feature
+      @features = actual_features unless @features != nil
+      saved_index = 0
+      updated = false
+      new_feature = nil
+      @features.each do |saved_feature|
+        actual_features.each do |current_feature|
+          new_feature = current_feature
+          if saved_feature['name'] == current_feature['name']
+            @features[saved_index]['duration'] = saved_feature['duration']>current_feature['duration']?saved_feature['duration'] : current_feature['duration']
+            updated = true
+          end
+        end
+        saved_index += 1
+        @features[saved_index] = new_feature unless updated
+      end
     end
+    # END
     feature_data = data all_features
     scenario_data = data all_scenarios
     step_data = data all_steps
@@ -207,7 +226,16 @@ class ReportBuilder
             all_features.each_with_index do |feature, n|
               @builder.h3(style: "background:#{COLOR[feature['status'].to_sym]}") do
                 @builder.span(class: feature['status']) do
-                  @builder << "<strong>#{feature['keyword']}</strong> #{feature['name']} (#{duration(feature['duration'])})"
+                  # Getting longest time for each feature
+                  current_feature_time = 0
+                  @features.each do |current_feature|
+                    if current_feature['name'] == feature['name']
+                      current_feature_time = current_feature['duration']
+                    end
+                  end
+                  @builder << "<strong>#{feature['keyword']}</strong> #{feature['name']} (#{duration(current_feature_time)})"
+                  # END
+                  #@builder << "<strong>#{feature['keyword']}</strong> #{feature['name']} (#{duration(feature['duration'])})"
                 end
               end
               @builder.div do

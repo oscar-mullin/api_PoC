@@ -1,7 +1,7 @@
 require_relative '../../support/lib/APIUtil'
 class CategoryAPI < APIUtil
 
-  @@category_id = ''
+  @@category_id = '_'
 
   def initialize(role_user=nil)
     super(role_user)
@@ -27,14 +27,15 @@ class CategoryAPI < APIUtil
     category_found = false
     no_next_link = false
     offset = 0
+    @@category_id = '_'
 
     until category_found or no_next_link
-      categories_response = getAllCategories(community_id, "offset:#{offset},limit:100")
-      response_content = JSON.parse(categories_response.body)['content']
+      getAllCategories(community_id, "offset:#{offset},limit:100")
+      response_content = JSON.parse(@@response.body)['content']
       category = response_content.select{|h1| h1['title'] == category_title}.first
       category_found = !(category.nil?)
       @@category_id = category['id'] if category_found
-      no_next_link = !((JSON.parse(categories_response.body)['links'].select{|h1| h1['rel'] == 'next'}).nil?)
+      no_next_link = !((JSON.parse(@@response.body)['links'].select{|h1| h1['rel'] == 'next'}).nil?)
       offset += 100 unless no_next_link
     end
   end
